@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Do You Like Me? 💖</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #ffc0cb, #ffb6c1);
+      text-align: center;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      justify-content: center;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #c71585;
+      margin-bottom: 1rem;
+    }
+    .buttons {
+      position: relative;
+      width: 300px;
+      height: 70px;
+      margin-bottom: 1rem;
+    }
+    button {
+      padding: 1rem 2.5rem;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      min-width: 110px;
+      user-select: none;
+      position: absolute;
+    }
+    #yesBtn {
+      background-color: #ff69b4; /* pink */
+      color: white;
+      box-shadow: 0 4px 10px rgba(255, 105, 180, 0.5);
+      left: 30%;
+      transform: translateX(-50%);
+    }
+    #noBtn {
+      background-color: #4CAF50; /* green */
+      color: white;
+      box-shadow: 0 4px 10px rgba(76, 175, 80, 0.5);
+      left: 70%;
+      transform: translateX(-50%);
+    }
+    #cuteImg {
+      width: 250px;
+      height: auto;
+      border-radius: 12px;
+      margin-top: 1rem;
+      animation: bounce 1.5s infinite;
+    }
+    #message {
+      font-size: 1.5rem;
+      color: #c71585;
+      font-weight: 600;
+      min-height: 2rem;
+      margin-top: 1rem;
+      user-select: none;
+    }
+    .full-screen-message {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(255, 240, 245, 0.95);
+      color: #c71585;
+      font-size: 2.5rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 2rem;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      user-select: none;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>AM I YOUR FAVORITE? 💖</h1>
+
+  <div class="buttons">
+    <button id="yesBtn">Yes 💖</button>
+    <button id="noBtn">No 💔</button>
+  </div>
+
+  <p id="message"></p>
+
+  <img id="cuteImg" src="https://media.giphy.com/media/ya4eevXU490Iw/giphy.gif" alt="Cute" />
+
+  <!-- Sounds -->
+  <audio id="yaySound" src="https://www.myinstants.com/media/sounds/yay.mp3"></audio>
+  <audio id="sadSound" src="https://www.myinstants.com/media/sounds/sad-trombone.mp3"></audio>
+  <audio id="tryAgainSound" src="https://www.myinstants.com/media/sounds/windows-error.mp3"></audio>
+  <audio id="kissSound" src="https://actions.google.com/sounds/v1/people/kiss.ogg"></audio>
+
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const message = document.getElementById("message");
+    const sadSound = document.getElementById("sadSound");
+    const yaySound = document.getElementById("yaySound");
+    const tryAgainSound = document.getElementById("tryAgainSound");
+    const kissSound = document.getElementById("kissSound");
+    const cuteImg = document.getElementById("cuteImg");
+
+    let noClickCount = 0;
+    let hoverMoves = 0;
+
+    // No button hover dodging (only twice)
+    noBtn.addEventListener("mouseover", () => {
+      if (hoverMoves < 4) {
+        const randomX = Math.random() * 100; // 0 to 100
+        const randomY = Math.random() * 50; // vertical variation
+        noBtn.style.left = `${randomX + 10}%`; // shift within 10%–90%
+        noBtn.style.top = `${randomY}px`;
+        hoverMoves++;
+      }
+    });
+
+    // Show fullscreen message
+    function showFullScreenMessage(text, duration = 2000, callback = null, sound = null) {
+      const div = document.createElement("div");
+      div.classList.add("full-screen-message");
+      div.innerHTML = `<div style="animation: bounce 1s infinite;">${text}</div>`;
+      document.body.appendChild(div);
+      setTimeout(() => div.style.opacity = 1, 50);
+      if (sound) sound.play();
+      setTimeout(() => {
+        div.style.opacity = 0;
+        setTimeout(() => {
+          div.remove();
+          if (callback) callback();
+        }, 500);
+      }, duration);
+    }
+
+    // Reset to original state
+    function resetToInitialState() {
+      noClickCount = 0;
+      hoverMoves = 0;
+      message.innerHTML = "";
+      cuteImg.src = "https://media.giphy.com/media/ya4eevXU490Iw/giphy.gif";
+      noBtn.style.left = "70%";
+      noBtn.style.top = "0";
+      yesBtn.style.display = "inline-block";
+      noBtn.style.display = "inline-block";
+    }
+
+    // No button click responses
+    noBtn.addEventListener("click", () => {
+      sadSound.play();
+      noClickCount++;
+
+      if (noClickCount === 1) {
+        showFullScreenMessage("OHH NO <br> (you can't do this to me!!) 😤", 2000, null, tryAgainSound);
+      } else if (noClickCount === 2) {
+        showFullScreenMessage("😠 YOU KIDDING???", 2000, null, tryAgainSound);
+      } else if (noClickCount === 3) {
+        showFullScreenMessage("❌ NOT ACCEPTABLE", 2000, null, tryAgainSound);
+      } else if (noClickCount >= 4) {
+        showFullScreenMessage("YOU KNOW I AM ! <br>You're just not well...<br>TRY AGAIN SWEETHEART", 4000, resetToInitialState, sadSound);
+      }
+    });
+
+    // Yes button click response
+    yesBtn.addEventListener("click", () => {
+      kissSound.play();
+      cuteImg.src = "https://media.giphy.com/media/4N1wOi78ZGzSB6H7vK/giphy.gif"; // chosen GIF
+      message.innerHTML = "💋 Awww! I knew it! You're the best! 💋";
+      yesBtn.style.display = "none";
+      noBtn.style.display = "none";
+      launchConfetti();
+    });
+
+    // Confetti
+    function launchConfetti() {
+      const duration = 3 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+      const interval = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) return clearInterval(interval);
+        const particleCount = 50 * (timeLeft / duration);
+        confetti(Object.assign({}, defaults, {
+          particleCount,
+          origin: { x: Math.random(), y: Math.random() - 0.2 }
+        }));
+      }, 250);
+    }
+  </script>
+</body>
+</html>
